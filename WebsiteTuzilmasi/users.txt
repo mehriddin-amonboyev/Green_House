@@ -1,0 +1,123 @@
+Website nomi:
+    GreenHouse
+
+Asosiy maqsad:
+    Uyda bog' yaratish bo'yicha maslahatlar.
+    Hayvonlar, qushlar, baliqlar, va o'simliklar haqida ma'lumotlar.
+    Ularni qanday parvarish qilish va qayerdan sotib olish mumkinligi bo'yicha qo'llanmalar.
+
+Bosh sahifa:
+    Saytning umumiy mazmuni va asosiy yo'nalishlari haqida qisqacha ma'lumot.
+
+    Kategoriyalar: 
+        O'simliklar
+        Hayvonlar
+        Qushlar
+        Baliqlar
+        Boshqalar
+    
+        O'simliklar Bo'limi:
+            Uyda bog' yaratish bo'yicha tavsiyalar
+            Har xil o'simliklar (uy o'simliklari, bog' o'simliklari) haqida batafsil ma'lumot.
+            O'simliklarni parvarish qilish, suv berish va tuproq haqida qo'llanmalar.
+
+        Hayvonlar Bo'limi:
+            Har xil hayvonlarni (qo'ylar, itlar, mushuklar va boshqa uy hayvonlari) parvarish qilish bo'yicha maslahatlar.
+            Ularni oziqlantirish, yashash muhiti va sog'lig'i haqida ma'lumotlar.
+
+        Qushlar Bo'limi:
+            Qushlarni parvarish qilish, boqish, qafas yoki erkin yashash sharoitlari haqida ma'lumotlar.
+            Uy sharoitida parvarish qilish mumkin bo'lgan qushlar turlari.
+        
+        Baliqlar Bo'limi:
+            Baliqlar uchun akvarium yaratish, suv muhiti, filtratsiya, va oziqlantirish haqida qo'llanmalar.
+            Uyda saqlash mumkin bo'lgan baliq turlari haqida ma'lumot.
+            
+        Hasharotlar Bo'limi:
+            Parvarish qilinadigan hasharotlar yoki foydali hasharotlar haqida ma'lumotlar.
+
+        Ekspert Maslahati:
+            Har bir tur bo'yicha ekspertlardan maslahatlar va qo'shimcha ma'lumotlar.
+            Ekspert izohlari va tahlillari.
+
+Foydalanuvchi Rollari:
+    Admin:
+        Saytning barcha bo'limlarini boshqarish.
+        Yangi tirik mavjudotlar, o'simliklar qo'shish va ularni tahrirlash.
+        Foydalanuvchilar va ekspertlarni boshqarish.
+    
+    Expert:
+        Har bir organizm bo'yicha tahlil va maslahatlarni yozish imkoniyati.
+        Ekspert maqolalari va ko'rsatmalarni qo'shish.
+
+    Foydalanuvchi:
+        Saytdagi ma'lumotlarni o'qish va ekspert maslahatlaridan foydalanish.
+        Istalgan hayvon yoki o'simlikni izlash imkoniyati.
+        Commentariyalar yozish huquqi.
+
+    Mehmon:
+        Saytning ma'lumotlarini o'qishi va expert maslahatidan foydalanishi mumkin.
+        Istalgan hayvon yoki ma'lumotki topishi mumkin
+
+4. Ma'lumotlar Bazasi Strukturası:
+    Organisms (Tirik mavjudotlar):
+        id, 
+        tur (o'simlik, hayvon, qush va boshqalar), 
+        description (tavsif), 
+        care_instructions (parvarish bo'yicha ko'rsatmalar), 
+        habitat (yashash muhiti), 
+        diet (ovqatlanish).
+
+    Categories (Kategoriyalar):
+        id, 
+        name (O'simliklar, Hayvonlar, Qushlar, Baliqlar, Hasharotlar).
+
+    Experts (Ekspertlar):
+        id, 
+        name, 
+        specialty (mutaxassislik), 
+        bio (ekspert haqida ma'lumot),
+        contact_info.
+
+    Expert_Organism (Ekspert va Organizm bog'lanishi):
+        id, 
+        organism_id,
+        expert_id,
+        expert_comment.
+
+Server qismi:
+    CRUD Operatsiyalar:
+        Admin tomonidan organizmlar, ekspertlar va kategoriyalarni boshqarish.
+        Foydalanuvchi tomonidan organizmlar bo'yicha izlash va ma'lumotlarni ko'rish.
+
+Rollar:
+    Admin (Administrator):
+        Huquqlari:
+            Barcha ma'lumotlarni boshqarish (o'simliklar, hayvonlar, qushlar va baliqlar bo'yicha kontentni qo'shish, tahrirlash, o'chirish).
+            Foydalanuvchilarni boshqarish (foydalanuvchi rollarini tayinlash, yangi foydalanuvchilarni qo'shish yoki bloklash).
+            Blog yoki yangiliklar bo'limini boshqarish.
+            Saytni kuzatish (analitik ma'lumotlarni ko'rish).
+
+    Mutaxassis (Maslahatchi):
+        Huquqlari:
+            Maxsus sohalar bo'yicha (masalan, qushlar, baliqlar, bog'lar) foydalanuvchilarga maslahatlar berish.
+            O'zi ishlaydigan soha bo'yicha kontent qo'shish yoki yangilash.
+            Foydalanuvchi savollariga javob berish.
+    
+    Foydalanuvchi (User):
+        Huquqlari:
+            Saytni ko'rish va maqolalarni o'qish.
+            Blogga yoki muhokamalarga sharh qo'shish.
+            Maslahatlarga savol berish va javob olish.
+            O'z shaxsiy profilini boshqarish.
+
+    Mehmon (Guest):
+        Huquqlari:
+            Saytning umumiy qismini ko'rish (o'quvchi sifatida).
+            Hisob yaratmasdan maqolalarni o'qish.
+            Ro'yxatdan o'tgan foydalanuvchilar kabi interaktiv funktsiyalardan foydalana olmaydi (masalan, sharh yozish, savol berish).
+
+    Rollar qanday ishlatiladi:
+        Admin: Asosiy boshqaruvchi sifatida saytni to'liq nazorat qiladi.
+        Moderatorlar va mutaxassislar kontent va foydalanuvchilar bilan bevosita ishlaydi, lekin admin kabi hamma narsani boshqarish huquqiga ega emaslar.
+        Foydalanuvchilar saytning asosiy interaktiv auditoriyasi bo'ladi, ular saytning turli bo'limlaridan foydalanadi, lekin kontent qo'shish yoki boshqarish imkoniga ega bo'lmaydi.
