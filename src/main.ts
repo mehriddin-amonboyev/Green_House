@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app';
-import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 async function startApp() {
@@ -22,8 +22,8 @@ async function startApp() {
   // app.useGlobalPrefix('/api/v1');
 
   const config = new DocumentBuilder()
-    .setTitle('Feane restaurant API')
-    .setDescription('The feane API description')
+    .setTitle('Green House API')
+    .setDescription("Uyda bog' yaratish bo'yicha maslahatlar.")
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
