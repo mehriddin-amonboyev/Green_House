@@ -1,11 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app';
+import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger'
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 async function startApp() {
   const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService)
+  const configService = app.get(ConfigService)
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -18,11 +19,22 @@ async function startApp() {
     }),
   );
 
+  // app.useGlobalPrefix('/api/v1');
+
+  const config = new DocumentBuilder()
+    .setTitle('Feane restaurant API')
+    .setDescription('The feane API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
+
   await app.listen(
-    config.get<number>('PORT'),
-    config.get<string>('HOST'),
+    configService.get<number>('PORT'),
+    configService.get<string>('HOST'),
     (): void => {
-      console.log(`Listening on port ${config.get<number>('PORT')}`)
+      console.log(`Listening on port ${configService.get<number>('PORT')}`)
     });
 }
 startApp();
