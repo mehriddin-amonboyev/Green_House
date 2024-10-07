@@ -1,18 +1,35 @@
 import { Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import dbConfig from './config/db.config';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { Category, CategoryModule } from '@modules';
-import { CheckAuthGuard } from '@guards';
+import { CheckAuthGuard, CheckRoleGuard } from '@guards';
 import { APP_GUARD } from '@nestjs/core';
+import { dbConfig, appConfig, jwtConfig } from '@config';
+import { JwtModule } from '@nestjs/jwt';
+import { UserModule } from './modules/user/user.module';
+import { UploadModule } from './modules/uploads';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [dbConfig],
+      load: [dbConfig, appConfig, jwtConfig],
     }),
 
+    ServeStaticModule.forRoot({
+      serveRoot: './uploads',
+      rootPath: './uploads'
+
+    }),
+
+    JwtModule.register({
+      secret: 'mehriddin',
+      global: true,
+      signOptions: {
+        expiresIn: 60 * 15,
+      },
+    }),
 
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
@@ -38,10 +55,16 @@ import { APP_GUARD } from '@nestjs/core';
       }
     }),
     CategoryModule,
+    UserModule,
+    UploadModule,
+    // AuthModule
   ],
   providers: [
     {
       useClass: CheckAuthGuard,
+      provide: APP_GUARD
+    },{
+      useClass: CheckRoleGuard,
       provide: APP_GUARD
     }
   ],

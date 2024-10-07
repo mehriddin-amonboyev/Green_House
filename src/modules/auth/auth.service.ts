@@ -3,136 +3,136 @@ import { InjectModel } from '@nestjs/sequelize';
 import { ConfigService } from '@nestjs/config';
 import { JsonWebTokenError, JwtService, NotBeforeError, TokenExpiredError } from '@nestjs/jwt';
 import { User } from '../user';
-import { LoginRequest, LoginResponse, RefreshRequest, RefreshResponse, RegisterRequest, RegisterResponse } from './interfaces';
+import { LoginRequest, LoginResponse, RefreshRequest, RefreshResponse, RegisterRequest, RegisterResponse } from './interface';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @InjectModel(User) private usermodel: typeof User,
-    private config: ConfigService,
-    private jwt: JwtService,
-  ) {}
+    constructor(
+        @InjectModel(User) private usermodel: typeof User,
+        private config: ConfigService,
+        private jwt: JwtService,
+    ) { }
 
-  async login(payload: LoginRequest): Promise<LoginResponse> {
-    const foundedUser = await this.usermodel.findOne({
-      where: { email: payload.email, phone: payload.phone },
-    });
+    async login(payload: LoginRequest): Promise<LoginResponse> {
+        const foundedUser = await this.usermodel.findOne({
+            where: { email: payload.email, phone: payload.phone },
+        });
 
-    if (!foundedUser) {
-      throw new NotFoundException('User not found');
+        if (!foundedUser) {
+            throw new NotFoundException('User not found');
+        }
+
+        const accessToken = await this.jwt.signAsync(
+            {
+                id: foundedUser.id,
+                role: foundedUser.role,
+            },
+            {
+                expiresIn: this.config.get<number>('jwt.accessTime'),
+                secret: this.config.get<string>('jwt.accessKey'),
+            },
+        );
+
+        const refreshToken = await this.jwt.signAsync(
+            {
+                id: foundedUser.id,
+                role: foundedUser.role,
+            },
+            {
+                expiresIn: this.config.get<string>('jwt.refreshTime'),
+                secret: this.config.get<string>('jwt.refreshKey'),
+            },
+        );
+
+        return {
+            message: 'successfully logged in',
+            accessToken,
+            refreshToken,
+        };
     }
 
-    const accessToken = await this.jwt.signAsync(
-      {
-        id: foundedUser.id,
-        role: foundedUser.role,
-      },
-      {
-        expiresIn: this.config.get<number>('jwt.accessTime'),
-        secret: this.config.get<string>('jwt.accessKey'),
-      },
-    );
+    async register(payload: RegisterRequest): Promise<RegisterResponse> {
+        const newUser = await this.usermodel.create({ name: payload.name, email: payload.email, phone: payload.phone })
 
-    const refreshToken = await this.jwt.signAsync(
-      {
-        id: foundedUser.id,
-        role: foundedUser.role,
-      },
-      {
-        expiresIn: this.config.get<string>('jwt.refreshTime'),
-        secret: this.config.get<string>('jwt.refreshKey'),
-      },
-    );
+        const accessToken = await this.jwt.signAsync(
+            {
+                id: newUser.id,
+                role: newUser.role,
+            },
+            {
+                expiresIn: this.config.get<number>('jwt.accessTime'),
+                secret: this.config.get<string>('jwt.accessKey'),
+            },
+        );
 
-    return {
-      message: 'successfully logged in',
-      accessToken,
-      refreshToken,
-    };
-  }
+        const refreshToken = await this.jwt.signAsync(
+            {
+                id: newUser.id,
+                role: newUser.role,
+            },
+            {
+                expiresIn: this.config.get<string>('jwt.refreshTime'),
+                secret: this.config.get<string>('jwt.refreshKey'),
+            },
+        );
 
-  async register(payload: RegisterRequest): Promise<RegisterResponse> {
-    const newUser = await this.usermodel.create({name: payload.name, email: payload.email, phone: payload.phone})
-
-    const accessToken = await this.jwt.signAsync(
-      {
-        id: newUser.id,
-        role: newUser.role,
-      },
-      {
-        expiresIn: this.config.get<number>('jwt.accessTime'),
-        secret: this.config.get<string>('jwt.accessKey'),
-      },
-    );
-
-    const refreshToken = await this.jwt.signAsync(
-      {
-        id: newUser.id,
-        role: newUser.role,
-      },
-      {
-        expiresIn: this.config.get<string>('jwt.refreshTime'),
-        secret: this.config.get<string>('jwt.refreshKey'),
-      },
-    );
-
-    return {
-      message: 'successfully registered in',
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  async logout() {}
-
-  async refresh(payload: RefreshRequest): Promise<RefreshResponse> {
-    // VERIFY REFRESH TOKEN
-    try {
-      this.jwt.verify(payload.refreshToken, { secret: this.config.get<string>('jwt.refreshKey') })
-    } catch (error) {
-      if (error instanceof TokenExpiredError) {
-        throw new UnprocessableEntityException("Token already expired")
-      }
-
-      if (error instanceof NotBeforeError) {
-        throw new ConflictException("Token not before error")
-      }
-
-      if (error instanceof JsonWebTokenError) {
-        throw new BadRequestException(error.message)
-      }
-
-      throw new InternalServerErrorException("Internal error occurred")
+        return {
+            message: 'successfully registered in',
+            accessToken,
+            refreshToken,
+        };
     }
 
-    const userDecodedData = this.jwt.decode(payload.refreshToken)
+    async logout() { }
 
-    const accessToken = await this.jwt.signAsync(
-      {
-        id: userDecodedData?.id,
-        role: userDecodedData?.role,
-      },
-      {
-        expiresIn: this.config.get<number>('jwt.accessTime'),
-        secret: this.config.get<string>('jwt.accessKey'),
-      },
-    );
+    async refresh(payload: RefreshRequest): Promise<RefreshResponse> {
+        // VERIFY REFRESH TOKEN
+        try {
+            this.jwt.verify(payload.refreshToken, { secret: this.config.get<string>('jwt.refreshKey') })
+        } catch (error) {
+            if (error instanceof TokenExpiredError) {
+                throw new UnprocessableEntityException("Token already expired")
+            }
 
-    const refreshToken = await this.jwt.signAsync(
-      {
-        id: userDecodedData?.id,
-        role: userDecodedData?.role,
-      },
-      {
-        expiresIn: this.config.get<string>('jwt.refreshTime'),
-        secret: this.config.get<string>('jwt.refreshKey'),
-      },
-    );
+            if (error instanceof NotBeforeError) {
+                throw new ConflictException("Token not before error")
+            }
 
-    return {
-      message: 'successfully refresh',
-      accessToken,
-      refreshToken,
-    };
-  }
+            if (error instanceof JsonWebTokenError) {
+                throw new BadRequestException(error.message)
+            }
+
+            throw new InternalServerErrorException("Internal error occurred")
+        }
+
+        const userDecodedData = this.jwt.decode(payload.refreshToken)
+
+        const accessToken = await this.jwt.signAsync(
+            {
+                id: userDecodedData?.id,
+                role: userDecodedData?.role,
+            },
+            {
+                expiresIn: this.config.get<number>('jwt.accessTime'),
+                secret: this.config.get<string>('jwt.accessKey'),
+            },
+        );
+
+        const refreshToken = await this.jwt.signAsync(
+            {
+                id: userDecodedData?.id,
+                role: userDecodedData?.role,
+            },
+            {
+                expiresIn: this.config.get<string>('jwt.refreshTime'),
+                secret: this.config.get<string>('jwt.refreshKey'),
+            },
+        );
+
+        return {
+            message: 'successfully refresh',
+            accessToken,
+            refreshToken,
+        };
+    }
 }

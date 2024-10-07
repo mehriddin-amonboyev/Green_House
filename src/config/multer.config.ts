@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as multer from 'multer';
 
 export const multerConfig = {
-    storage: multer.diskSorage({
+    storage: multer.diskStorage({
         destination(req, file, callback) {
             return callback(null, './uploads');
         },

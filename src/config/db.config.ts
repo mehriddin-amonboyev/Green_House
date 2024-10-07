@@ -1,4 +1,4 @@
-export default () => ({
+export const dbConfig = () => ({
     database: {
         port: process.env.DB_PORT,
         host: process.env.DB_HOST,
