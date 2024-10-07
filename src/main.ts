@@ -1,6 +1,6 @@
+import { AppModule } from './app';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from './app';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 

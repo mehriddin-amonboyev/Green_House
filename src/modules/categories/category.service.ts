@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from '@nestjs/sequelize';
-import { Category } from "./models";
 import { CreateCategoryRequest, UpdateCategoryRequest } from "./interfaces";
+import { Category } from "./models";
 
 @Injectable()
 export class CategoryService {

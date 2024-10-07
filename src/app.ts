@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { SequelizeModule } from '@nestjs/sequelize';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import dbConfig from './config/db.config';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { Category } from './modules/categories/models';
-import { CategoryModule } from './modules/categories';
+import { Category, CategoryModule } from '@modules';
+import { CheckAuthGuard } from '@guards';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -38,8 +39,11 @@ import { CategoryModule } from './modules/categories';
     }),
     CategoryModule,
   ],
-  // providers: [{
-  //   useClass:C
-  // }],
+  providers: [
+    {
+      useClass: CheckAuthGuard,
+      provide: APP_GUARD
+    }
+  ],
 })
 export class AppModule { }
